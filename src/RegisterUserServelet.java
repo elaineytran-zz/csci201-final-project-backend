@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
  */
 @WebServlet("/RegisterUserServelet")
 public class RegisterUserServelet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-    public String data = "\"SUCCESS\"";
+	
+    private static final long serialVersionUID = 1L;
+	
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -46,13 +47,14 @@ public class RegisterUserServelet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
-
+			// Get response from adding user
 			String json  = addUser(request);
 			
 			PrintWriter out = response.getWriter();
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			// Add root node around the returned data
+			
+			// Add root node around the returned response
 			out.print("{\"root\": " +  json + "}");
 			out.flush();
 			
@@ -63,7 +65,7 @@ public class RegisterUserServelet extends HttpServlet {
     
     public String addUser(HttpServletRequest request) {
 		FirebaseOptions options = null;
-		
+		String data = "\"SUCCESS\"";
 		try {	
 			// Initialize Firebase
 			// If the default app is initialized, don't not do it again
@@ -78,18 +80,12 @@ public class RegisterUserServelet extends HttpServlet {
 			}
 			UserRecord userRecord = null;
 			
+			// Get user information from parameters
 			String email = request.getParameter("email");
 			String password = request.getParameter("password");
 			String displayName = request.getParameter("displayName");
-			
-			// Sample values delete in actual implementation
-			email = "test@usc.edu";
-			password = "password";
-			displayName = "John";
 		
-			// Uncomment to add User to Auth tab of firebase ----This works---
 			// If user already exists then returns String "FAILED"
-			/*
 			try {
 				CreateRequest userRequest = new CreateRequest()
 					    .setEmail(email)
@@ -101,23 +97,10 @@ public class RegisterUserServelet extends HttpServlet {
 				// TODO Auto-generated catch block
 				return "\"FAILED\"";
 			}
-			*/
 			
-			DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 			
-			DatabaseReference usersRef = ref.child("users");
-			
-			// Cannot get this to work when converting to servlet
-			// Adds user to actual database under user tab
-			// Map stores user data
-			Map<String, String> user = new HashMap<String, String>();
-			user.put("email", email);
-			user.put("password", password);
-			user.put("username", displayName);
-			
-			// .push() creates unique key (look at database for examples) and then .setValyeAsync will put the map under the key
-			usersRef.push().setValueAsync(user);
 		} catch (Exception ex) {
+			// Collects error message
 			data = "{\"error\"= \"" + ex.getMessage() + "\"}";
 		}
 
